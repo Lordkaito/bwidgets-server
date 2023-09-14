@@ -27,7 +27,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-// app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 
 // Puerto
 const port = process.env.PORT || 3000;
