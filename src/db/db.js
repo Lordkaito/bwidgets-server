@@ -1,3 +1,4 @@
+const pgp = require("pg-promise")();
 // Configura la cadena de conexión a tu base de datos PostgreSQL
 const dbConfig = {
   host:
