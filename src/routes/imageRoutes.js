@@ -8,7 +8,7 @@ const {
 
 const router = express.Router();
 
-function setRoutes(app, upload) {
+function setImageRoutes(app, upload) {
   // Ruta para subir una imagen
   router.post("/images", upload.single("image"), uploadImage);
 
@@ -25,12 +25,10 @@ function setRoutes(app, upload) {
     res.send("API probando tests");
   });
 
-  // Agrega más rutas aquí según tus necesidades
-
   // Monta las rutas en la aplicación
   app.use("/api", router);
 }
 
 module.exports = {
-  setRoutes,
+  setImageRoutes,
 };
