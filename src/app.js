@@ -3,10 +3,12 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const { setImageRoutes } = require("./routes/imageRoutes");
 const { setUserRoutes } = require("./routes/userRoutes");
+const { setFolderRoutes } = require("./routes/folderRoutes");
 const dotenv = require("dotenv");
 const upload = require("./utils/upload"); // Importa la configuración de Multer desde el archivo
 const fs = require("fs");
 dotenv.config();
+
 const app = express();
 // Middleware
 app.use(bodyParser.json());
@@ -18,6 +20,7 @@ if (!fs.existsSync(uploadDir)) {
 // Rutas
 setImageRoutes(app, upload);
 setUserRoutes(app);
+setFolderRoutes(app);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

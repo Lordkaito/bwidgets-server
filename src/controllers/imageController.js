@@ -1,6 +1,3 @@
-const fs = require("fs");
-const path = require("path");
-const db = require("../db/db");
 const Image = require("../models/image");
 
 function uploadImage(req, res) {
@@ -13,6 +10,7 @@ function uploadImage(req, res) {
   const size = image.size;
   try {
     Image.create(filename, mimetype, size);
+    res.status(201).send("Imagen subida correctamente.");
   } catch (error) {
     console.error("Error al registrar la imagen en la base de datos:", error);
     res.status(500).send("Error al procesar la imagen.");
@@ -41,7 +39,7 @@ function getAllImages(req, res) {
       if (!images) {
         return res.status(404).send("No se ha encontrado ninguna imagen.");
       }
-      res.json(images);
+      res.status(200).json(images);
     });
   } catch (error) {
     console.error("Error al obtener las imágenes de la base de datos:", error);

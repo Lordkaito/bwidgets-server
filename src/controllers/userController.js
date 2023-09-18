@@ -36,6 +36,7 @@ async function loginUser(req, res) {
       return res.status(401).send("Contraseña incorrecta.");
     }
 
+    // need to receive token to check if user is logged in
     const token = jwt.sign(
       { id: user.id, username: user.username },
       SECRET_KEY,
@@ -44,7 +45,7 @@ async function loginUser(req, res) {
       }
     );
     // remember to remove the password from the response
-    res.status(200).send({ message: "Inicio de sesión correcto.", token });
+    res.status(202).send({ message: "Inicio de sesión correcto.", token });
   } catch (error) {
     res.status(500).send("Error al iniciar sesión.");
   }

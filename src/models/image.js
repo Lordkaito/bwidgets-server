@@ -5,9 +5,10 @@ class Image {
     this.id = id;
     this.filename = filename;
     this.url = url;
+    // this.folderId = folderId;
   }
 
-  static async create(filename, mimetype, size) {
+  static async create(name, fileType, kb, folderId = null) {
     const pool = new Pool({
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
@@ -15,7 +16,6 @@ class Image {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       ssl: {
-        // rejectUnauthorized: false,
         sslmode: "require",
       },
     });
@@ -23,9 +23,8 @@ class Image {
     try {
       const result = await client
         .query(
-          "INSERT INTO images(filename, mimetype, size) VALUES($1, $2, $3) RETURNING id"[
-            (filename, mimetype, size)
-          ]
+          "INSERT INTO images(filename, mimetype, size, folder_id) VALUES($1, $2, $3, $4) RETURNING id",
+          [name, fileType, kb, folderId]
         )
         .then((data) => {
           console.log(
@@ -34,18 +33,19 @@ class Image {
           );
           const image = {
             id: data.rows[0].id,
-            filename: filename,
-            mimetype: mimetype,
-            size: size,
-            url: `/uploads/${filename}`, // Ajusta la ruta según tu configuración
+            filename: name,
+            mimetype: fileType,
+            size: kb,
+            url: `/uploads/${name}`, // Ajusta la ruta según tu configuración
+            folderId: folderId, // Establece la carpeta asociada a la imagen
           };
           return image;
         });
-      const { id, filename, mimetype, size, url } = result;
+      const { id, filename, url } = result;
       return new Image(id, filename, url);
     } catch (error) {
       console.error("Error al registrar la imagen en la base de datos:", error);
-      res.status(500).send("Error al procesar la imagen.");
+      throw new Error("Error al registrar la imagen en la base de datos");
     } finally {
       client.release();
     }
@@ -95,20 +95,19 @@ class Image {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       ssl: {
-        // rejectUnauthorized: false,
         sslmode: "require",
       },
     });
     const client = await pool.connect();
     try {
       const result = await client.query("SELECT * FROM images");
-      // return result.rows.map((row) => new Image(row.id, row.filename, row.url));
       const images = result.rows.map((row) => {
         return {
           id: row.id,
           filename: row.filename,
           mimetype: row.mimetype,
           size: row.size,
+          folderId: row.folder_id,
           // Genera la URL pública basada en la ubicación de la imagen en el servidor
           url: `/uploads/${row.filename}`, // Ajusta la ruta según tu configuración
         };
