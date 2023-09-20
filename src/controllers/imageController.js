@@ -9,7 +9,7 @@ function uploadImage(req, res) {
   const mimetype = image.mimetype;
   const size = image.size;
   try {
-    Image.create(filename, mimetype, size);
+    Image.create(filename, mimetype, size, folderId = 1);
     res.status(201).send("Imagen subida correctamente.");
   } catch (error) {
     console.error("Error al registrar la imagen en la base de datos:", error);

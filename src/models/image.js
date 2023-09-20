@@ -8,7 +8,8 @@ class Image {
     // this.folderId = folderId;
   }
 
-  static async create(name, fileType, kb, folderId = null) {
+  static async create(name, fileType, kb, folderId) {
+    console.log("folderId", name, fileType, folderId);
     const pool = new Pool({
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
@@ -21,10 +22,11 @@ class Image {
     });
     const client = await pool.connect();
     try {
+      const imageUrl = `/uploads/${name}`;
       const result = await client
         .query(
-          "INSERT INTO images(filename, mimetype, size, folder_id) VALUES($1, $2, $3, $4) RETURNING id",
-          [name, fileType, kb, folderId]
+          "INSERT INTO images(filename, mimetype, size, folder_id, url) VALUES($1, $2, $3, $4, $5) RETURNING id",
+          [name, fileType, kb, folderId, imageUrl]
         )
         .then((data) => {
           console.log(
@@ -36,7 +38,7 @@ class Image {
             filename: name,
             mimetype: fileType,
             size: kb,
-            url: `/uploads/${name}`, // Ajusta la ruta según tu configuración
+            url: imageUrl, // Ajusta la ruta según tu configuración
             folderId: folderId, // Establece la carpeta asociada a la imagen
           };
           return image;

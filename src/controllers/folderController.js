@@ -1,10 +1,13 @@
 const Folder = require("../models/folder");
 
 function createFolder(req, res) {
-  const { name } = req.body;
+  console.log("req.body", req.body);
   try {
-    Folder.create(name);
-    res.status(201).send("Carpeta creada correctamente.");
+    const { name } = req.body;
+    const folder = Folder.create(name);
+    if (folder) {
+      res.status(201).send({ message: "Carpeta creada correctamente." });
+    }
   } catch (error) {
     console.error("Error al crear la carpeta:", error);
     res.status(500).send("Error al crear la carpeta.");
@@ -15,10 +18,12 @@ function getFolder(req, res) {
   const { id } = req.params;
   try {
     Folder.find(id).then((folder) => {
-      if (!folder) {
-        return res.status(404).send("No se ha encontrado ninguna carpeta.");
+      if (folder.name === "No folder found") {
+        return res
+          .status(404)
+          .send({ message: "No se ha encontrado ninguna carpeta." });
       }
-      res.json(folder);
+      res.send({ message: "Carpeta encontrada.", folder: folder });
     });
   } catch (error) {
     console.error("Error al obtener la carpeta de la base de datos:", error);
