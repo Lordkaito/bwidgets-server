@@ -10,7 +10,7 @@ const router = express.Router();
 
 function setImageRoutes(app, upload) {
   // Ruta para subir una imagen
-  router.post("/images", upload.single("image"), uploadImage);
+  router.post("/images", upload.array("image", 10), uploadImage);
 
   // Ruta para obtener una imagen por ID
   router.get("/images/:id", getImage);

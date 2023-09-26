@@ -1,15 +1,14 @@
 const { Pool } = require("pg");
 
 class Image {
-  constructor(id, filename, url) {
-    this.id = id;
-    this.filename = filename;
-    this.url = url;
-    // this.folderId = folderId;
+  constructor(id, filename, url, folder) {
+    this.image_id = id;
+    this.image_filename = filename;
+    this.image_url = url;
+    this.folder_id = folder;
   }
 
-  static async create(name, fileType, kb, folderId) {
-    console.log("folderId", name, fileType, folderId);
+  static async create(imageData, folderId) {
     const pool = new Pool({
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
@@ -22,29 +21,30 @@ class Image {
     });
     const client = await pool.connect();
     try {
-      const imageUrl = `/uploads/${name}`;
+      const imageUrl = `/uploads/${imageData.filename}`;
       const result = await client
         .query(
           "INSERT INTO images(filename, mimetype, size, folder_id, url) VALUES($1, $2, $3, $4, $5) RETURNING id",
-          [name, fileType, kb, folderId, imageUrl]
+          [imageData.filename, imageData.mimetype, imageData.size, folderId, imageUrl]
         )
         .then((data) => {
           console.log(
             "Imagen subida y registrada en la base de datos con ID:",
-            data.rows[0].id
+            data.rows[0].id, data
           );
           const image = {
             id: data.rows[0].id,
-            filename: name,
-            mimetype: fileType,
-            size: kb,
+            filename: imageData.filename,
+            mimetype: imageData.mimetype,
+            size: imageData.size,
             url: imageUrl, // Ajusta la ruta según tu configuración
             folderId: folderId, // Establece la carpeta asociada a la imagen
           };
           return image;
         });
       const { id, filename, url } = result;
-      return new Image(id, filename, url);
+      const folder = result.folderId
+      return new Image(id, filename, url, folder);
     } catch (error) {
       console.error("Error al registrar la imagen en la base de datos:", error);
       throw new Error("Error al registrar la imagen en la base de datos");

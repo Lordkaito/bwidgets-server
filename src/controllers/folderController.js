@@ -1,12 +1,12 @@
 const Folder = require("../models/folder");
 
-function createFolder(req, res) {
+async function createFolder(req, res) {
   console.log("req.body", req.body);
   try {
     const { name } = req.body;
-    const folder = Folder.create(name);
+    const folder = await Folder.create(name);
     if (folder) {
-      res.status(201).send({ message: "Carpeta creada correctamente." });
+      res.status(201).send({ message: "Carpeta creada correctamente.", folder });
     }
   } catch (error) {
     console.error("Error al crear la carpeta:", error);

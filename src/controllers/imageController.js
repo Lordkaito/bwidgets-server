@@ -1,16 +1,25 @@
 const Image = require("../models/image");
 
-function uploadImage(req, res) {
-  if (!req.file) {
-    return res.status(400).send("No se ha subido ninguna imagen.");
+async function uploadImage(req, res) {
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ message: "No se ha subido ninguna imagen." });
   }
-  const image = req.file;
-  const filename = image.filename;
-  const mimetype = image.mimetype;
-  const size = image.size;
+  // return
+  // const image = req.file;
+  // const filename = image.filename;
+  // const mimetype = image.mimetype;
+  // const size = image.size;
+  const folderId = req.body.folder_id;
   try {
-    Image.create(filename, mimetype, size, folderId = 1);
-    res.status(201).send("Imagen subida correctamente.");
+    const imagesPromises = await req.files.map(async (file) => {
+      let filename = file.filename;
+      let mimetype = file.mimetype;
+      let size = file.size;
+      let newImage = await Image.create({ filename, mimetype, size }, folderId);
+      return newImage;
+    });
+    const images = await Promise.all(imagesPromises);
+    res.status(201).json({ message: "Imagen subida con éxito.", images });
   } catch (error) {
     console.error("Error al registrar la imagen en la base de datos:", error);
     res.status(500).send("Error al procesar la imagen.");
