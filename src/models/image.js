@@ -1,4 +1,5 @@
 const { Pool } = require("pg");
+const checkName = require("../utils/checkName");
 
 class Image {
   constructor(id, filename, url, folder) {
@@ -9,6 +10,7 @@ class Image {
   }
 
   static async create(imageData, folderId) {
+    const cleanImageName = checkName(imageData.filename);
     const pool = new Pool({
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
@@ -21,20 +23,16 @@ class Image {
     });
     const client = await pool.connect();
     try {
-      const imageUrl = `/uploads/${imageData.filename}`;
+      const imageUrl = `/uploads/${cleanImageName}`;
       const result = await client
         .query(
           "INSERT INTO images(filename, mimetype, size, folder_id, url) VALUES($1, $2, $3, $4, $5) RETURNING id",
-          [imageData.filename, imageData.mimetype, imageData.size, folderId, imageUrl]
+          [cleanImageName, imageData.mimetype, imageData.size, folderId, imageUrl]
         )
         .then((data) => {
-          console.log(
-            "Imagen subida y registrada en la base de datos con ID:",
-            data.rows[0].id, data
-          );
           const image = {
             id: data.rows[0].id,
-            filename: imageData.filename,
+            filename: cleanImageName,
             mimetype: imageData.mimetype,
             size: imageData.size,
             url: imageUrl, // Ajusta la ruta según tu configuración
@@ -69,7 +67,6 @@ class Image {
       const result = await client
         .query("SELECT * FROM images WHERE id = $1", [id])
         .then((data) => {
-          console.log(data);
           const image = {
             id: data.rows[0].id,
             filename: data.rows[0].filename,

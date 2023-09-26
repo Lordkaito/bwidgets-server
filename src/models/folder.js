@@ -1,5 +1,5 @@
 const { Pool } = require("pg");
-
+// const checkName = require("../utils/checkName");
 class Folder {
   constructor(name, images) {
     // this.id = id;
@@ -8,6 +8,7 @@ class Folder {
   }
 
   static async create(folderName) {
+    // const cleanName = checkName(folderName);
     const pool = new Pool({
       host: process.env.DB_HOST,
       port: process.env.DB_PORT,
@@ -25,7 +26,6 @@ class Folder {
           folderName,
         ])
         .then((data) => {
-          console.log("Carpeta creada en la base de datos con ID:", data);
           const folder = {
             id: data.rows[0].id,
             // name: folderName,
@@ -57,7 +57,6 @@ class Folder {
         [folderId]
       );
 
-      console.log(result);
       if (result.rows.length === 0) {
         return new Folder("No folder found", null);
       }
@@ -105,7 +104,6 @@ class Folder {
       const result = await client
         .query("SELECT * FROM images WHERE folder_id = $1", [id])
         .then((data) => {
-          console.log(data);
           const image = {
             id: data.rows[0].id,
             filename: data.rows[0].filename,

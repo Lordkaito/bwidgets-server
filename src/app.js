@@ -30,6 +30,4 @@ app.use((err, req, res, next) => {
 app.use("/uploads", express.static("uploads"));
 // Puerto
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Servidor escuchando en el puerto ${port}`);
-});
+app.listen(port)

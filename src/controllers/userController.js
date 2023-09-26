@@ -15,8 +15,15 @@ async function signUpUser(req, res) {
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create(username, hashedPassword, email);
+    const token = jwt.sign(
+      { id: user.id, username: user.username },
+      SECRET_KEY,
+      {
+        expiresIn: "48h",
+      }
+    );
     // remember to remove the password from the response
-    res.status(201).json({ message: "Usuario creado con éxito.", user });
+    res.status(201).json({ message: "Usuario creado con éxito.", user, token });
   } catch (error) {
     console.error("Error al crear el usuario:", error);
     res.status(500).send("Error al crear el usuario.");

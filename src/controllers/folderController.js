@@ -1,7 +1,6 @@
 const Folder = require("../models/folder");
 
 async function createFolder(req, res) {
-  console.log("req.body", req.body);
   try {
     const { name } = req.body;
     const folder = await Folder.create(name);
